@@ -1,0 +1,20 @@
+{
+    "movies": [
+        {
+            "title": "Inception",
+            "director": "Christopher Nolan",
+            "release_year": 2010,
+            "genre": "Sci-Fi",
+            "rating": 8.8,
+            "viewing_status": "Not watched"
+        }
+    ],
+    "users": [
+        {
+            "name": "John Doe",
+            "email": "john@example.com",
+            "added_movies": [],
+            "viewing_status": {}
+        }
+    ]
+}
