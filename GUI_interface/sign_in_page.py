@@ -1,5 +1,5 @@
 import customtkinter as ctk 
-from GUI_logic.sign_in_page import login
+from GUI_logic.sign_in_page import open_registration, login
 from GUI_interface.home_page import Home
 
 class SignIn(ctk.CTkToplevel):
@@ -29,6 +29,10 @@ class SignIn(ctk.CTkToplevel):
 
         self.checkbox = ctk.CTkCheckBox(master=self.frame, text='Remember Me') 
         self.checkbox.pack(pady=12, padx=10) 
+
+        self.label_reg = ctk.CTkLabel(master=self.frame, text='New? Create an account', font=ctk.CTkFont(size=14, underline=True), cursor="hand2") 
+        self.label_reg.pack(pady=12, padx=10)
+        self.label_reg.bind("<Button-1>", lambda e: open_registration(self)) 
 
     def open_login(self):
         username = self.user_entry.get()
