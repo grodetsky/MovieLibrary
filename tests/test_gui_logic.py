@@ -4,7 +4,8 @@ from unittest.mock import MagicMock
 from classes.user import User
 from GUI_logic.sign_in_page import login
 from GUI_logic.sign_up_page import register
-
+from GUI_logic.sign_in_page import open_registration
+from GUI_logic.sign_up_page import back_to_login
 
 class TestUserAuth(unittest.TestCase):
 
@@ -60,6 +61,33 @@ class TestUserAuth(unittest.TestCase):
         # Check if login failed and window was not closed
         self.assertIsNone(result)
         mock_window.destroy.assert_not_called()
+
+
+class TestWindowTransitions(unittest.TestCase):
+
+    def test_open_registration(self):
+        """Test transition from sign-in to sign-up window."""
+        # Create a mock for the current window (login window)
+        mock_login_window = MagicMock()
+
+        # Call the open_registration function
+        open_registration(mock_login_window)
+
+        # Check that the login window was hidden
+        mock_login_window.withdraw.assert_called_once()
+
+    def test_back_to_login(self):
+        """Test transition from sign-up back to sign-in window."""
+        # Create mock windows for testing
+        mock_signup_window = MagicMock()
+        mock_login_window = MagicMock()
+
+        # Call back_to_login and verify the behavior
+        back_to_login(mock_signup_window, mock_login_window)
+
+        # Check that the sign-up window was closed and login window was shown
+        mock_signup_window.destroy.assert_called_once()
+        mock_login_window.deiconify.assert_called_once()
 
 
 if __name__ == "__main__":
