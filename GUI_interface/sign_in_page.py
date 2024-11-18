@@ -38,5 +38,5 @@ class SignIn(ctk.CTkToplevel):
         username = self.user_entry.get()
         password = self.user_pass.get()
         if login(username, password, self):
-            self.home_window = Home()
+            self.home_window = Home(username)
             self.home_window.grab_set()
