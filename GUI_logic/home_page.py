@@ -1,5 +1,6 @@
 import os
 from classes.user import User
+from classes.movie import Movie
 
 def show_account_info(username):
     """Account page"""
@@ -14,3 +15,10 @@ def show_account_info(username):
                 user_dict["added_movies"] = ", ".join(movie["title"] for movie in user_dict["added_movies"])
             return user_dict
     return None
+
+def show_movies_info():
+    """Movies page"""
+    if os.path.exists("movies.json"):
+        movies = Movie.load_from_json("movies.json")
+        return movies
+    return []
