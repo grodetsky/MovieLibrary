@@ -4,14 +4,19 @@ from classes.movie import Movie
 from interfaces.movie_library import MovieLibrarySystemInterface
 
 class MovieLibrarySystem(MovieLibrarySystemInterface):
-    def __init__(self):
-        """Initialize the movie library system with empty collections."""
+    def __init__(self, movie_class: type, user_class: type):
+        """Initialize the movie library system with injected dependencies.
+        :param movie_class: The Movie class for creating movie objects.
+        :param user_class: The User class for creating user objects.
+        """
         self.movies = []  # List to store Movie objects
         self.users = []   # List to store User objects
+        self.Movie = movie_class  # Injected Movie dependency
+        self.User = user_class    # Injected User dependency
 
     def add_movie(self, movie_data: dict) -> None:
         """Adds a new movie to the collection."""
-        movie = Movie.from_dict(movie_data)  # Create a Movie object from the provided dictionary
+        movie = self.Movie.from_dict(movie_data)  # Injected Movie
         self.movies.append(movie)  # Append movie to the movies list
 
     def remove_movie(self, movie_id: int) -> None:
@@ -20,7 +25,7 @@ class MovieLibrarySystem(MovieLibrarySystemInterface):
 
     def register_user(self, user_data: dict) -> None:
         """Registers a new user in the system."""
-        user = User.from_dict(user_data)  # Create a User object from the provided dictionary
+        user = self.User.from_dict(user_data)  # Injected User
         self.users.append(user)  # Append user to the users list
 
     def track_viewing_status(self, user_id: str, movie_id: str, status: str) -> None:
@@ -53,5 +58,5 @@ class MovieLibrarySystem(MovieLibrarySystemInterface):
         """Loads the movie library system data from a JSON file."""
         with open(filename, 'r', encoding='utf-8') as f:
             data = json.load(f)
-            self.movies = [Movie.from_dict(movie_data) for movie_data in data.get("movies", [])]  # Load movies
-            self.users = [User.from_dict(user_data) for user_data in data.get("users", [])]       # Load users
+            self.movies = [self.Movie.from_dict(movie_data) for movie_data in data.get("movies", [])]  # Load movies
+            self.users = [self.User.from_dict(user_data) for user_data in data.get("users", [])]       # Load users
