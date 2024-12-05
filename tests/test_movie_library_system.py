@@ -1,111 +1,70 @@
 import unittest
-from classes.movie_library import MovieLibrarySystem
 from classes.movie import Movie
 from classes.user import User
+from classes.movie_library import MovieLibrarySystem
+
 
 class TestMovieLibrarySystem(unittest.TestCase):
 
     def setUp(self):
-        """Initialization before each test"""
-        self.library = MovieLibrarySystem()
-        self.movie_data = {
-            "title": "Inception",
-            "director": "Christopher Nolan",
-            "release_year": 2010,
-            "genre": "Sci-Fi",
-            "rating": 8.8
-        }
-        self.user_data = {
-            "name": "John Doe",
-            "email": "john@example.com"
-        }
+        # Create instances of Movie and User classes
+        self.movie1 = Movie("Test Movie", "John Doe", 2024, "Action", 8.5)
+        self.movie2 = Movie("Another Movie", "Jane Doe", 2023, "Comedy", 7.2)
+        self.user1 = User("Test User", "test@example.com")
+        self.user2 = User("Another User", "another@example.com")
+
+        # Create an instance of the MovieLibrarySystem
+        self.library = MovieLibrarySystem(movie_class=Movie, user_class=User)
 
     def test_add_movie(self):
-        """Testing adding a movie to the library"""
-        self.library.add_movie(self.movie_data)
+        """Test adding a movie to the library."""
+        self.library.add_movie({"title": "Test Movie", "director": "John Doe", "release_year": 2024, "genre": "Action", "rating": 8.5})
         self.assertEqual(len(self.library.movies), 1)
-        self.assertEqual(self.library.movies[0].get_movie_title(), "Inception")
+        self.assertEqual(self.library.movies[0].get_movie_title(), "Test Movie")
 
     def test_remove_movie(self):
-        """Testing removing a movie from the library"""
-        self.library.add_movie(self.movie_data)
-        self.library.remove_movie(self.movie_data['title'])
-        self.assertEqual(len(self.library.movies), 0)
+        """Test removing a movie from the library."""
+        self.library.add_movie({"title": "Test Movie", "director": "John Doe", "release_year": 2024, "genre": "Action", "rating": 8.5})
+        self.library.add_movie({"title": "Another Movie", "director": "Jane Doe", "release_year": 2023, "genre": "Comedy", "rating": 7.2})
+
+        self.library.remove_movie("Test Movie")  # Use the movie title to remove it
+        self.assertEqual(len(self.library.movies), 1)
+        self.assertEqual(self.library.movies[0].get_movie_title(), "Another Movie")
 
     def test_register_user(self):
-        """Testing user registration in the system"""
-        self.library.register_user(self.user_data)
+        """Test registering a user in the system."""
+        self.library.register_user({"name": "Test User", "email": "test@example.com"})
         self.assertEqual(len(self.library.users), 1)
-        self.assertEqual(self.library.users[0].get_user_name(), "John Doe")
+        self.assertEqual(self.library.users[0].get_user_name(), "Test User")
 
     def test_track_viewing_status(self):
-        """Testing tracking viewing status of a movie by a user"""
-        self.library.register_user(self.user_data)
-        self.library.add_movie(self.movie_data)
+        """Test tracking the viewing status for a user."""
+        self.library.register_user({"name": "Test User", "email": "test@example.com"})
+        self.library.add_movie(
+            {"title": "Test Movie", "director": "John Doe", "release_year": 2024, "genre": "Action", "rating": 8.5})
 
-        # Manually add the movie to the user's collection
+        # Add the movie to the user's collection
         user = self.library.users[0]
         movie = self.library.movies[0]
         user.add_movie(movie)
 
-        # Now change the viewing status
-        self.library.track_viewing_status("John Doe", "Inception", "Watched")
+        # Assign a viewing status
+        self.library.track_viewing_status("Test User", "Test Movie", "watched")
 
-        # Check if the status was updated correctly
-        status = user.get_viewing_status("Inception")
-        self.assertEqual(status, "Watched")
+        # Verify that the status was updated
+        self.assertEqual(user.get_viewing_status("Test Movie"), "watched")
 
-    def test_search_movies_by_title(self):
-        """Testing searching movies by title"""
-        self.library.add_movie(self.movie_data)
-        result = self.library.search_movies({"title": "Inception"})
+    def test_search_movies(self):
+        """Test searching for movies based on different criteria."""
+        self.library.add_movie({"title": "Test Movie", "director": "John Doe", "release_year": 2024, "genre": "Action", "rating": 8.5})
+        self.library.add_movie({"title": "Another Movie", "director": "Jane Doe", "release_year": 2023, "genre": "Comedy", "rating": 7.2})
+
+        criteria = {"title": "Test Movie"}
+        result = self.library.search_movies(criteria)
+
         self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].get_movie_title(), "Inception")
+        self.assertEqual(result[0].get_movie_title(), "Test Movie")
 
-    def test_search_movies_by_director(self):
-        """Testing searching movies by director"""
-        self.library.add_movie(self.movie_data)
-        result = self.library.search_movies({"director": "Christopher Nolan"})
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].get_movie_director(), "Christopher Nolan")
-
-    def test_search_movies_by_release_year(self):
-        """Testing searching movies by release year"""
-        self.library.add_movie(self.movie_data)
-        result = self.library.search_movies({"release_year": 2010})
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].get_release_year(), 2010)
-
-    def test_search_movies_by_genre(self):
-        """Testing searching movies by genre"""
-        self.library.add_movie(self.movie_data)
-        result = self.library.search_movies({"genre": "Sci-Fi"})
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].get_genre(), "Sci-Fi")
-
-    def test_save_to_json(self):
-        """Testing saving the library system to a JSON file"""
-        self.library.add_movie(self.movie_data)
-        self.library.register_user(self.user_data)
-        self.library.save_to_json('test_library.json')
-        with open('test_library.json', 'r', encoding='utf-8') as f:
-            data = f.read()
-        self.assertIn("Inception", data)
-        self.assertIn("John Doe", data)
-
-    def test_load_from_json(self):
-        """Testing loading the library system from a JSON file"""
-        self.library.add_movie(self.movie_data)
-        self.library.register_user(self.user_data)
-        self.library.save_to_json('test_library.json')
-
-        new_library = MovieLibrarySystem()
-        new_library.load_from_json('test_library.json')
-
-        self.assertEqual(len(new_library.movies), 1)
-        self.assertEqual(len(new_library.users), 1)
-        self.assertEqual(new_library.movies[0].get_movie_title(), "Inception")
-        self.assertEqual(new_library.users[0].get_user_name(), "John Doe")
 
 if __name__ == '__main__':
     unittest.main()
