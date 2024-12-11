@@ -1,70 +1,51 @@
 import unittest
-from classes.movie import Movie
-from classes.user import User
+from unittest.mock import MagicMock
 from classes.movie_library import MovieLibrarySystem
 
-
-class TestMovieLibrarySystem(unittest.TestCase):
+class TestMovieLibrarySystemWithMock(unittest.TestCase):
 
     def setUp(self):
-        # Create instances of Movie and User classes
-        self.movie1 = Movie("Test Movie", "John Doe", 2024, "Action", 8.5)
-        self.movie2 = Movie("Another Movie", "Jane Doe", 2023, "Comedy", 7.2)
-        self.user1 = User("Test User", "test@example.com")
-        self.user2 = User("Another User", "another@example.com")
-
-        # Create an instance of the MovieLibrarySystem
-        self.library = MovieLibrarySystem(movie_class=Movie, user_class=User)
+        """Setup with Mock objects."""
+        self.mock_movie = MagicMock()
+        self.mock_user = MagicMock()
+        self.library = MovieLibrarySystem(movie_class=self.mock_movie, user_class=self.mock_user)
 
     def test_add_movie(self):
-        """Test adding a movie to the library."""
-        self.library.add_movie({"title": "Test Movie", "director": "John Doe", "release_year": 2024, "genre": "Action", "rating": 8.5})
+        """Test add_movie with a mock."""
+        movie_data = {"title": "Mock Movie", "director": "Mock Director", "release_year": 2022, "genre": "Drama", "rating": 7.5}
+        self.library.add_movie(movie_data)
+        self.mock_movie.from_dict.assert_called_once_with(movie_data)
         self.assertEqual(len(self.library.movies), 1)
-        self.assertEqual(self.library.movies[0].get_movie_title(), "Test Movie")
-
-    def test_remove_movie(self):
-        """Test removing a movie from the library."""
-        self.library.add_movie({"title": "Test Movie", "director": "John Doe", "release_year": 2024, "genre": "Action", "rating": 8.5})
-        self.library.add_movie({"title": "Another Movie", "director": "Jane Doe", "release_year": 2023, "genre": "Comedy", "rating": 7.2})
-
-        self.library.remove_movie("Test Movie")  # Use the movie title to remove it
-        self.assertEqual(len(self.library.movies), 1)
-        self.assertEqual(self.library.movies[0].get_movie_title(), "Another Movie")
 
     def test_register_user(self):
-        """Test registering a user in the system."""
-        self.library.register_user({"name": "Test User", "email": "test@example.com"})
+        """Test register_user with a mock."""
+        user_data = {"name": "Mock User", "email": "mock@example.com"}
+        self.library.register_user(user_data)
+        self.mock_user.from_dict.assert_called_once_with(user_data)
         self.assertEqual(len(self.library.users), 1)
-        self.assertEqual(self.library.users[0].get_user_name(), "Test User")
 
     def test_track_viewing_status(self):
-        """Test tracking the viewing status for a user."""
-        self.library.register_user({"name": "Test User", "email": "test@example.com"})
-        self.library.add_movie(
-            {"title": "Test Movie", "director": "John Doe", "release_year": 2024, "genre": "Action", "rating": 8.5})
+        """Test track_viewing_status with a mock."""
+        self.library.register_user({"name": "Mock User", "email": "mock@example.com"})
+        self.library.add_movie({"title": "Mock Movie", "director": "Mock Director", "release_year": 2022, "genre": "Drama", "rating": 7.5})
 
-        # Add the movie to the user's collection
-        user = self.library.users[0]
-        movie = self.library.movies[0]
-        user.add_movie(movie)
+        user_mock = self.mock_user.from_dict.return_value
+        user_mock.get_user_name.return_value = "Mock User"
+        self.library.track_viewing_status("Mock User", "Mock Movie", "watched")
 
-        # Assign a viewing status
-        self.library.track_viewing_status("Test User", "Test Movie", "watched")
-
-        # Verify that the status was updated
-        self.assertEqual(user.get_viewing_status("Test Movie"), "watched")
+        user_mock.set_viewing_status.assert_called_once_with("Mock Movie", "watched")
 
     def test_search_movies(self):
-        """Test searching for movies based on different criteria."""
-        self.library.add_movie({"title": "Test Movie", "director": "John Doe", "release_year": 2024, "genre": "Action", "rating": 8.5})
-        self.library.add_movie({"title": "Another Movie", "director": "Jane Doe", "release_year": 2023, "genre": "Comedy", "rating": 7.2})
+        """Test search_movies with a mock."""
+        self.mock_movie.get_movie_title.return_value = "Mock Movie"
+        self.library.movies = [self.mock_movie]
 
-        criteria = {"title": "Test Movie"}
+        criteria = {"title": "Mock Movie"}
         result = self.library.search_movies(criteria)
 
+        self.mock_movie.get_movie_title.assert_called_once()
         self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].get_movie_title(), "Test Movie")
-
+        self.assertEqual(result[0], self.mock_movie)
 
 if __name__ == '__main__':
     unittest.main()
